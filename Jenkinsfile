@@ -8,9 +8,9 @@ pipeline {
     }
 
     stages {
-        stage('Clone Repo') {
+        stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/111nawaz/flask-stylish-app.git'
+                checkout scm
             }
         }
 
