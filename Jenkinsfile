@@ -8,37 +8,32 @@ pipeline {
     }
 
     stages {
-        stage('Clone Repository') {
+        stage('Clone Repo') {
             steps {
-                echo '📥 Cloning repository...'
                 git branch: 'main', url: 'https://github.com/111nawaz/flask-stylish-app.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                echo '🐳 Building Docker image...'
-                sh 'docker build -t $DOCKER_IMAGE:$IMAGE_TAG .'
+                sh "docker build -t $DOCKER_IMAGE:$IMAGE_TAG ."
             }
         }
 
-        stage('Push Docker Image') {
+        stage('Push to Docker Hub') {
             steps {
-                echo '🚀 Pushing image to Docker Hub...'
                 withDockerRegistry([credentialsId: "$DOCKER_CREDENTIALS_ID", url: ""]) {
-                    sh 'docker push $DOCKER_IMAGE:$IMAGE_TAG'
+                    sh "docker push $DOCKER_IMAGE:$IMAGE_TAG"
                 }
             }
         }
 
         stage('Run Docker Container') {
             steps {
-                echo '⚙️ Running Docker container...'
-                // Remove old container if it exists
-                sh '''
-                    docker rm -f flask-app-container || true
-                    docker run -d -p 5001:5000 --name flask-app-container $DOCKER_IMAGE:$IMAGE_TAG
-                '''
+                // Stop and remove existing container if exists
+                sh "docker rm -f flask-container || true"
+                // Run the new container
+                sh "docker run -d -p 5001:5000 --name flask-container $DOCKER_IMAGE:$IMAGE_TAG"
             }
         }
     }
